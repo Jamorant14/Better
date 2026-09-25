@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Set the Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15181A; --bg2:#1C2022; --card:#20252A;
+    --amber:#FFB020; --teal:#4E9C97; --line:#33393D;
+    --ink:#EDEFEE; --ink-dim:#9AA3A6;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    min-height:100%;margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',sans-serif;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:24px 16px 90px;
+  }
+  .wrap{width:100%;max-width:430px;}
+  .lane{display:flex;gap:5px;margin-bottom:22px;}
+  .lane div{height:3px;flex:1;background:var(--line);border-radius:2px;overflow:hidden;}
+  .lane div i{display:block;height:100%;width:0%;background:var(--amber);transition:width .35s ease;}
+  .lane div.done i{width:100%;}
+  .lane div.active i{width:100%;}
+  h1{font-family:'Oswald',sans-serif;font-weight:600;font-size:26px;letter-spacing:.2px;margin:0 0 4px;}
+  .sub{color:var(--ink-dim);font-size:14px;margin:0 0 22px;line-height:1.5;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px;}
+  .step{display:none;}
+  .step.active{display:block;animation:rise .28s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  label{display:block;font-size:13px;color:var(--ink-dim);margin:16px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input[type=number], select, input[type=text]{
+    width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);
+    padding:12px 12px;border-radius:9px;font-size:16px;font-family:inherit;
+    -webkit-appearance:none;appearance:none;
+  }
+  input:focus, select:focus, button:focus-visible{outline:2px solid var(--amber);outline-offset:1px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .genderpick{display:flex;gap:10px;}
+  .gbtn{flex:1;padding:12px;border-radius:9px;border:1px solid var(--line);background:var(--bg2);
+    color:var(--ink);font-family:inherit;font-size:15px;cursor:pointer;text-align:center;}
+  .gbtn.on{border-color:var(--amber);color:var(--amber);background:#2A2410;}
+  .primary{
+    margin-top:22px;width:100%;padding:13px;border:none;border-radius:9px;
+    background:var(--amber);color:#191300;font-weight:600;font-size:15px;
+    font-family:'Inter',sans-serif;cursor:pointer;
+  }
+  .primary:disabled{background:#3a3f43;color:#7d8488;cursor:not-allowed;}
+  .ghost{
+    margin-top:10px;width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;
+    background:transparent;color:var(--ink-dim);font-family:inherit;font-size:14px;cursor:pointer;
+  }
+  .viewlabel{font-size:11px;color:var(--ink-dim);text-align:center;margin-top:4px;letter-spacing:.3px;}
+  .figure-wrap{display:flex;gap:10px;justify-content:center;}
+  .figure-col{flex:1;max-width:48%;}
+  svg{touch-action:manipulation;width:100%;height:auto;display:block;}
+  .zone{fill:#e8b48a;fill-opacity:.18;stroke:#e8b48a;stroke-opacity:.45;stroke-width:1;cursor:pointer;transition:fill-opacity .15s;}
+  .zone:hover{fill-opacity:.34;}
+  .zone.on{fill:var(--amber);fill-opacity:.75;stroke:var(--amber);stroke-opacity:1;}
+  .taglist{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .tag{padding:7px 12px;border-radius:20px;border:1px solid var(--line);font-size:13px;
+    background:var(--bg2);color:var(--ink-dim);cursor:pointer;}
+  .tag.on{border-color:var(--amber);color:var(--amber);background:#2A2410;}
+  .durgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .dbtn{padding:14px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg2);
+    color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;text-align:center;}
+  .dbtn b{display:block;font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;margin-bottom:2px;}
+  .dbtn.on{border-color:var(--teal);background:#122624;color:#8FE0D8;}
+  .customwrap{margin-top:12px;display:none;}
+  .customwrap.show{display:block;}
+  .summary dl{margin:0;}
+  .summary dt{font-size:12px;color:var(--ink-dim);margin-top:14px;}
+  .summary dt:first-child{margin-top:0;}
+  .summary dd{margin:2px 0 0;font-family:'Oswald',sans-serif;font-size:18px;font-weight:500;}
+  .done-badge{width:44px;height:44px;border-radius:50%;background:var(--amber);color:#191300;
+    display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+  .track-wrap{margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 2px;overflow:hidden;}
+  .track-title{font-size:12px;color:var(--ink-dim);padding:0 8px 8px;}
+  .day-panel{margin-top:14px;padding:18px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;display:none;}
+  .day-panel.show{display:block;}
+  .day-panel-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:19;display:none;}
+  .day-panel-backdrop.show{display:block;}
+  .day-panel{position:fixed;left:16px;right:16px;top:16%;max-width:398px;margin:0 auto;z-index:20;
+    padding:18px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 16px 44px rgba(0,0,0,.55);display:none;max-height:70vh;overflow-y:auto;}
+  .day-panel.show{display:block;animation:rise .22s ease;}
+  .dp-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--ink-dim);
+    font-size:20px;line-height:1;cursor:pointer;padding:6px 8px;}
+  .day-panel-title{font-family:'Oswald',sans-serif;font-size:16px;margin-bottom:16px;}
+  .modes-diag{display:flex;flex-direction:column;}
+  .modebtn{align-self:flex-start;padding:11px 18px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+    color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;}
+  .modebtn.on{border-color:var(--amber);color:var(--amber);background:#2A2410;}
+  .dp-preview{margin-top:18px;font-size:13px;color:var(--ink-dim);line-height:1.8;display:none;}
+  .dp-preview.show{display:block;}
+  .dp-preview h4{margin:0 0 6px;color:var(--ink);font-family:'Oswald',sans-serif;font-size:14px;font-weight:500;}
+  .timestart-diag{display:none;margin-top:20px;}
+  .timestart-diag.show{display:block;}
+  .dp-time{font-size:12px;color:var(--ink-dim);}
+  .dp-time b{display:block;font-family:'Oswald',sans-serif;font-size:21px;color:var(--ink);font-weight:600;}
+  .dp-start{display:block;margin-top:12px;margin-left:64px;padding:12px 28px;border:none;border-radius:9px;
+    background:var(--amber);color:#191300;font-weight:600;font-size:14px;cursor:pointer;}
+  .dp-start:disabled{background:#3a3f43;color:#7d8488;}
+  .camera-view{position:fixed;inset:0;background:#000;z-index:30;display:none;flex-direction:column;}
+  .camera-view.show{display:flex;}
+  #camVideo{flex:1;width:100%;height:100%;object-fit:cover;background:#000;}
+  .cam-overlay-top{position:absolute;top:0;left:0;right:0;z-index:2;padding:16px 16px 22px;
+    padding-top:calc(16px + env(safe-area-inset-top,0px));display:flex;justify-content:space-between;
+    align-items:center;color:#fff;background:linear-gradient(rgba(0,0,0,.65),transparent);}
+  .cam-workout{font-size:13px;opacity:.85;max-width:60%;}
+  .cam-timer{font-family:'Oswald',sans-serif;font-size:20px;letter-spacing:1px;}
+  .cam-bottom{position:absolute;bottom:0;left:0;right:0;z-index:2;padding:20px;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;
+    background:linear-gradient(transparent,rgba(0,0,0,.75));}
+  .cam-finish{padding:14px 36px;border-radius:30px;border:none;background:var(--amber);
+    color:#191300;font-weight:600;font-size:15px;cursor:pointer;}
+  .cam-error{color:#fff;text-align:center;padding:40px 24px;font-size:14px;line-height:1.6;
+    opacity:.85;margin:auto;}
+  .cam-close{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:16px;z-index:2;
+    background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;
+    border-radius:50%;font-size:18px;cursor:pointer;}
+  .levelrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 0;border-bottom:1px solid var(--line);}
+  .levelrow:last-of-type{border-bottom:none;}
+  .levelrow label{margin:0;font-size:15px;color:var(--ink);flex:0 0 auto;}
+  .levelrow select{width:auto;min-width:150px;padding:9px 10px;font-size:14px;}
+  /* final screen tabs */
+  #step5{padding-bottom:6px;}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;animation:rise .25s ease;}
+  .drillzone{margin-bottom:14px;}
+  .drillzone h3{font-family:'Oswald',sans-serif;font-size:15px;margin:0 0 6px;color:var(--amber);font-weight:600;}
+  .drillzone ul{margin:0;padding-left:18px;color:var(--ink-dim);font-size:14px;line-height:1.7;}
+  .tiplist{margin:0;padding-left:18px;color:var(--ink-dim);font-size:14px;line-height:1.9;}
+  .foodrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);}
+  .foodrow:last-of-type{border-bottom:none;}
+  .foodrow span:first-child{color:var(--ink-dim);font-size:14px;}
+  .foodrow span:last-child{font-family:'Oswald',sans-serif;font-size:16px;}
+  .disclaimer{font-size:11px;color:var(--ink-dim);margin-top:14px;line-height:1.5;}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);
+    border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
+    max-width:430px;margin:0 auto;z-index:10;}
+  .wrap .tabbar{position:fixed;}
+  .tabbtn{flex:1;background:none;border:none;color:var(--ink-dim);font-family:'Inter',sans-serif;
+    font-size:11px;padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .tabbtn span.ic{font-size:18px;}
+  .tabbtn.on{color:var(--amber);}
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){--bg:#F0EFEC;--bg2:#FFFFFF;--card:#FFFFFF;--line:#DEDCD6;--ink:#1B1D1F;--ink-dim:#6B6F72;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lane" id="laneWrap">
+    <div id="lane1" class="active"><i></i></div>
+    <div id="lane2"><i></i></div>
+    <div id="lane3"><i></i></div>
+    <div id="lane4"><i></i></div>
+    <div id="lane5"><i></i></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <h1>Let's set your program</h1>
+    <p class="sub">A few basics so the plan fits you.</p>
+    <div class="card">
+      <label for="age">Age</label>
+      <input type="number" id="age" min="13" max="90" placeholder="e.g. 27" inputmode="numeric">
+      <label>Gender</label>
+      <div class="genderpick">
+        <button type="button" class="gbtn" data-g="female">Female</button>
+        <button type="button" class="gbtn" data-g="male">Male</button>
+      </div>
+      <div class="row2">
+        <div>
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" min="120" max="230" placeholder="175" inputmode="numeric">
+        </div>
+        <div>
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" min="30" max="250" placeholder="70" inputmode="numeric">
+        </div>
+      </div>
+      <button class="primary" id="toStep2" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <h1>What are you training for?</h1>
+    <p class="sub">Tap the areas you want this program to focus on — front and back.</p>
+    <div class="card">
+      <div class="figure-wrap">
+        <div class="figure-col">
+          <svg id="figureFront" viewBox="0 0 160 360"></svg>
+          <div class="viewlabel">FRONT</div>
+        </div>
+        <div class="figure-col">
+          <svg id="figureBack" viewBox="0 0 160 360"></svg>
+          <div class="viewlabel">BACK</div>
+        </div>
+      </div>
+      <div class="taglist" id="taglist"></div>
+      <button class="primary" id="toStep3" disabled>Continue</button>
+      <button class="ghost" id="back2">Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <h1>How long are you training?</h1>
+    <p class="sub">Pick a program length.</p>
+    <div class="card">
+      <div class="durgrid">
+        <button class="dbtn" data-d="30"><b>1</b>month</button>
+        <button class="dbtn" data-d="90"><b>3</b>months</button>
+        <button class="dbtn" data-d="180"><b>6</b>months</button>
+        <button class="dbtn" data-d="365"><b>1</b>year</button>
+      </div>
+      <button class="dbtn" id="customBtn" style="width:100%;margin-top:10px;">Custom length</button>
+      <div class="customwrap" id="customWrap">
+        <label for="customDays">Number of days</label>
+        <input type="number" id="customDays" min="1" max="1000" placeholder="e.g. 45" inputmode="numeric">
+      </div>
+      <button class="primary" id="toStep4" disabled>Continue</button>
+      <button class="ghost" id="back3">Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: LEVELS -->
+  <div class="step" id="step4">
+    <h1>What's your level?</h1>
+    <p class="sub">Rate yourself on each area you picked.</p>
+    <div class="card">
+      <div id="levelList"></div>
+      <button class="primary" id="toStep5">Build my program</button>
+      <button class="ghost" id="back4">Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: FINAL -->
+  <div class="step" id="step5">
+    <h1>Your program</h1>
+    <p class="sub">Built around what you picked.</p>
+
+    <div class="tabpanel active" id="tabProfile">
+      <div class="card summary">
+        <div class="done-badge">✓</div>
+        <dl id="summaryOut"></dl>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tabSideQuest">
+      <div class="card" id="sqOut"></div>
+    </div>
+
+    <div class="tabpanel" id="tabTraining">
+      <div class="card">
+        <div class="track-wrap">
+          <div class="track-title" id="trackTitle"></div>
+          <svg id="trackSvg" width="100%"></svg>
+        </div>
+        <div class="day-panel-backdrop" id="dayPanelBackdrop"></div>
+        <div class="day-panel" id="dayPanel">
+          <button class="dp-close" id="dpClose" aria-label="Close">×</button>
+          <div class="day-panel-title">Day <span id="dpDayNum"></span> workout</div>
+          <div class="modes-diag">
+            <button class="modebtn" data-mode="weights" style="margin-left:0;">With Weights</button>
+            <button class="modebtn" data-mode="free" style="margin-left:28px;margin-top:8px;">Free</button>
+            <button class="modebtn" data-mode="calisthenics" style="margin-left:56px;margin-top:8px;">Calisthenics</button>
+          </div>
+          <div class="dp-preview" id="dpPreview"></div>
+          <div class="timestart-diag" id="timestartDiag">
+            <div class="dp-time" id="dpTime"></div>
+            <button class="dp-start" id="dpStart">Start</button>
+          </div>
+        </div>
+        <div class="camera-view" id="cameraView">
+          <button class="cam-close" id="camClose" aria-label="Close">×</button>
+          <div class="cam-overlay-top">
+            <span class="cam-workout" id="camWorkoutName"></span>
+            <span class="cam-timer" id="camTimer">00:00</span>
+          </div>
+          <video id="camVideo" autoplay playsinline muted></video>
+          <div class="cam-bottom"><button class="cam-finish" id="camFinish">Finish workout</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tabDrills">
+      <div class="card" id="drillsOut"></div>
+    </div>
+
+    <div class="tabpanel" id="tabTips">
+      <div class="card">
+        <ul class="tiplist" id="tipsOut"></ul>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tabFood">
+      <div class="card" id="foodOut"></div>
+    </div>
+
+  </div>
+
+  <div class="tabbar" id="tabbar" style="display:none;">
+    <button class="tabbtn on" data-tab="Profile"><span class="ic">👤</span>Profile</button>
+    <button class="tabbtn" data-tab="Food"><span class="ic">🍎</span>Food</button>
+    <button class="tabbtn" data-tab="Tips"><span class="ic">💡</span>Tips</button>
+    <button class="tabbtn" data-tab="Drills"><span class="ic">🏋</span>Drills</button>
+    <button class="tabbtn" data-tab="SideQuest"><span class="ic">🎯</span>Side Quest</button>
+    <button class="tabbtn" data-tab="Training"><span class="ic">📅</span>Training</button>
+  </div>
+</div>
+
+<script>
+const state = { age:null, gender:null, height:null, weight:null, zones:[], levels:{}, durationDays:null, durationLabel:null };
+
+const zoneDefs = [
+  {id:'shoulders', label:'Shoulders'},
+  {id:'chest',     label:'Chest'},
+  {id:'arms',      label:'Arms'},
+  {id:'core',      label:'Core'},
+  {id:'back',      label:'Back'},
+  {id:'glutes',    label:'Glutes'},
+  {id:'legs',      label:'Legs'},
+];
+const LEVELS = ['Beginner','Intermediate','Semi-Advanced','Advanced','Pro','Elite'];
+const drillMap = {
+  shoulders:['Overhead press','Lateral raises','Face pulls'],
+  chest:['Push-ups','Flat bench press','Incline dumbbell press'],
+  arms:['Bicep curls','Tricep dips','Hammer curls'],
+  core:['Plank','Hanging leg raise','Cable crunch'],
+  back:['Pull-ups','Bent-over rows','Lat pulldown'],
+  glutes:['Hip thrusts','Bulgarian split squats','Glute bridges'],
+  legs:['Back squats','Romanian deadlift','Walking lunges'],
+};
+const modeMap = {
+  weights: drillMap,
+  free: { shoulders:['Pike push-ups','Arm circles'], chest:['Push-ups','Wide push-ups'], arms:['Chair dips','Diamond push-ups'],
+    core:['Plank','Mountain climbers'], back:['Superman holds','Inverted rows'], glutes:['Glute bridges','Step-ups'], legs:['Bodyweight squats','Lunges'] },
+  calisthenics: { shoulders:['Handstand hold','Pike walk'], chest:['Archer push-ups','Dips'], arms:['Chin-ups','Diamond push-ups'],
+    core:['Hollow body hold','L-sit'], back:['Pull-ups','Australian rows'], glutes:['Pistol squats','Jump squats'], legs:['Pistol squats','Shrimp squats'] },
+};
+const modeBase = { weights:{base:32,per:6}, free:{base:18,per:4}, calisthenics:{base:24,per:5} };
+state.currentDay = 1;
+state.sideQuestSeen = false;
+state.sideQuestToday = null;
+const questPool = [
+  {d:1, t:'Take a 10-minute walk outside'},
+  {d:1, t:'Do 2 minutes of stretching, any muscle group'},
+  {d:2, t:'Do 20 push-ups, spread through the day'},
+  {d:2, t:'Drink an extra liter of water today'},
+  {d:3, t:'Hold a plank for 2 minutes total'},
+  {d:3, t:'Take the stairs every time today'},
+  {d:4, t:'100 bodyweight squats spread through the day'},
+  {d:4, t:'20-minute mobility / foam-rolling session'},
+  {d:5, t:'Run or bike 5km at any pace'},
+  {d:5, t:'30-minute extra cardio session on top of training'},
+];
+
+// ---------- more human figures ----------
+function bodyOutline(gender, view){
+  const male = gender==='male';
+  const shW = male ? 42 : 33, chW = male ? 29 : 30, waW = male ? 21 : 19, hiW = male ? 25 : 31;
+  const skinTop = '#e0a877', skinBot = '#a5714a';
+  const hair = male
+    ? `<path d="M60 20 Q80 4 100 20 Q101 30 96 32 Q80 20 64 32 Q59 30 60 20Z" fill="#2c2320"/>`
+    : `<path d="M56 16 Q80 -4 104 16 Q112 46 102 66 Q107 40 97 24 Q80 14 63 24 Q53 40 58 66 Q48 46 56 16Z" fill="#2c2320"/>`;
+  const face = view==='front' ? `
+    <circle cx="72" cy="46" r="2" fill="#2c2320"/>
+    <circle cx="88" cy="46" r="2" fill="#2c2320"/>
+    <path d="M78 50 Q80 54 82 50" stroke="#8a5a38" stroke-width="1.2" fill="none"/>
+    <path d="M71 62 Q80 66 89 62" stroke="#8a5a38" stroke-width="1.3" fill="none"/>` : '';
+
+  return `
+    <defs>
+      <linearGradient id="skin${view}${gender}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${skinTop}"/><stop offset="100%" stop-color="${skinBot}"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="76" cy="44" rx="4" ry="6" fill="url(#skin${view}${gender})"/>
+    <ellipse cx="84" cy="44" rx="4" ry="6" fill="url(#skin${view}${gender})"/>
+    <ellipse cx="80" cy="42" rx="17" ry="20" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    ${hair}${face}
+    <rect x="73" y="56" width="14" height="14" fill="url(#skin${view}${gender})"/>
+    <path d="M80 58
+      C ${80-shW} 64, ${80-shW-2} 78, ${80-chW} 104
+      C ${80-waW-6} 128, ${80-waW} 140, ${80-hiW} 164
+      C ${80-hiW} 176, ${80-hiW+10} 184, 80 186
+      C ${80+hiW-10} 184, ${80+hiW} 176, ${80+hiW} 164
+      C ${80+waW} 140, ${80+waW+6} 128, ${80+chW} 104
+      C ${80+shW+2} 78, ${80+shW} 64, 80 58 Z"
+      fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <path d="M${80-shW-2} 68 C ${80-shW-13} 92, ${80-shW-11} 122, ${80-waW-4} 138
+      C ${80-waW-16} 130, ${80-shW-19} 96, ${80-shW-2} 68Z" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <path d="M${80+shW+2} 68 C ${80+shW+13} 92, ${80+shW+11} 122, ${80+waW+4} 138
+      C ${80+waW+16} 130, ${80+shW+19} 96, ${80+shW+2} 68Z" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <ellipse cx="${80-waW-9}" cy="141" rx="5" ry="6" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <ellipse cx="${80+waW+9}" cy="141" rx="5" ry="6" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <path d="M${80-hiW+5} 180 C ${80-hiW+3} 226, ${80-15} 270, ${80-11} 320
+      L${80-3} 320 C ${80-5} 270, ${80-hiW+11} 228, ${80-hiW+9} 182Z" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <path d="M${80+hiW-5} 180 C ${80+hiW-3} 226, ${80+15} 270, ${80+11} 320
+      L${80+3} 320 C ${80+5} 270, ${80+hiW-11} 228, ${80+hiW-9} 182Z" fill="url(#skin${view}${gender})" stroke="#7a4f30" stroke-width="0.6"/>
+    <ellipse cx="${80-7}" cy="326" rx="9" ry="5" fill="#3a2c22"/>
+    <ellipse cx="${80+7}" cy="326" rx="9" ry="5" fill="#3a2c22"/>
+    ${view==='front' ? `
+      <path d="M64 96 Q80 90 96 96" stroke="#7a4f30" stroke-width="1" fill="none" opacity="${male?0.55:0.25}"/>
+      <path d="M70 112 Q80 110 90 112 M70 122 Q80 120 90 122 M70 132 Q80 130 90 132"
+        stroke="#7a4f30" stroke-width="1" fill="none" opacity="0.35"/>
+    ` : `
+      <path d="M80 60 L80 106" stroke="#7a4f30" stroke-width="1" opacity="0.3"/>
+      <path d="M64 66 Q80 60 96 66 Q86 82 80 88 Q74 82 64 66Z" fill="#8a5a38" opacity="0.28"/>
+      <path d="M68 176 Q80 182 92 176" stroke="#7a4f30" stroke-width="1" fill="none" opacity="0.3"/>
+    `}
+  `;
+}
+
+function zonesFor(view){
+  if(view==='front') return `
+    <ellipse class="zone" data-zone="shoulders" cx="44" cy="65" rx="12" ry="10"></ellipse>
+    <ellipse class="zone" data-zone="shoulders" cx="116" cy="65" rx="12" ry="10"></ellipse>
+    <path class="zone" data-zone="chest" d="M60 90 Q80 84 100 90 Q98 108 80 110 Q62 108 60 90Z"></path>
+    <path class="zone" data-zone="arms" d="M${80-45-2} 80 C ${80-45-14} 104, ${80-45-12} 128, ${80-21-4} 140 L${80-21+2} 132 C ${80-45-4} 118, ${80-45-6} 100, ${80-45+2} 82Z"></path>
+    <path class="zone" data-zone="arms" d="M${80+45+2} 80 C ${80+45+14} 104, ${80+45+12} 128, ${80+21+4} 140 L${80+21-2} 132 C ${80+45+4} 118, ${80+45+6} 100, ${80+45-2} 82Z"></path>
+    <rect class="zone" data-zone="core" x="61" y="112" width="38" height="34" rx="9"></rect>
+    <path class="zone" data-zone="legs" d="M64 186 Q60 244 64 312 L79 312 Q77 244 79 186Z"></path>
+    <path class="zone" data-zone="legs" d="M96 186 Q100 244 96 312 L81 312 Q83 244 81 186Z"></path>
+  `;
+  return `
+    <ellipse class="zone" data-zone="shoulders" cx="44" cy="65" rx="12" ry="10"></ellipse>
+    <ellipse class="zone" data-zone="shoulders" cx="116" cy="65" rx="12" ry="10"></ellipse>
+    <path class="zone" data-zone="back" d="M60 78 Q80 72 100 78 Q94 118 80 128 Q66 118 60 78Z"></path>
+    <path class="zone" data-zone="arms" d="M${80-45-2} 80 C ${80-45-14} 104, ${80-45-12} 128, ${80-21-4} 140 L${80-21+2} 132 C ${80-45-4} 118, ${80-45-6} 100, ${80-45+2} 82Z"></path>
+    <path class="zone" data-zone="arms" d="M${80+45+2} 80 C ${80+45+14} 104, ${80+45+12} 128, ${80+21+4} 140 L${80+21-2} 132 C ${80+45+4} 118, ${80+45+6} 100, ${80+45-2} 82Z"></path>
+    <path class="zone" data-zone="glutes" d="M58 158 Q80 150 102 158 Q100 178 80 182 Q60 178 58 158Z"></path>
+    <path class="zone" data-zone="legs" d="M64 186 Q60 244 64 312 L79 312 Q77 244 79 186Z"></path>
+    <path class="zone" data-zone="legs" d="M96 186 Q100 244 96 312 L81 312 Q83 244 81 186Z"></path>
+  `;
+}
+
+function buildFigures(gender){
+  const g = gender || 'female';
+  document.getElementById('figureFront').innerHTML = bodyOutline(g,'front') + zonesFor('front');
+  document.getElementById('figureBack').innerHTML = bodyOutline(g,'back') + zonesFor('back');
+  document.querySelectorAll('[data-zone]').forEach(el=>{
+    el.addEventListener('click', ()=> toggleZone(el.getAttribute('data-zone')));
+  });
+  refreshZoneVisuals();
+}
+function toggleZone(id){
+  const i = state.zones.indexOf(id);
+  if(i>-1) state.zones.splice(i,1); else state.zones.push(id);
+  refreshZoneVisuals();
+  document.getElementById('toStep3').disabled = state.zones.length===0;
+}
+function refreshZoneVisuals(){
+  document.querySelectorAll('[data-zone]').forEach(el=>{
+    el.classList.toggle('on', state.zones.includes(el.getAttribute('data-zone')));
+  });
+  const list = document.getElementById('taglist');
+  list.innerHTML = '';
+  zoneDefs.forEach(z=>{
+    const t = document.createElement('div');
+    t.className = 'tag' + (state.zones.includes(z.id) ? ' on' : '');
+    t.textContent = z.label;
+    t.addEventListener('click', ()=> toggleZone(z.id));
+    list.appendChild(t);
+  });
+}
+
+// ---------- step 1 ----------
+document.querySelectorAll('.gbtn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.gbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    state.gender = b.getAttribute('data-g');
+    validateStep1();
+  });
+});
+['age','height','weight'].forEach(id=> document.getElementById(id).addEventListener('input', validateStep1));
+function validateStep1(){
+  state.age = document.getElementById('age').value;
+  state.height = document.getElementById('height').value;
+  state.weight = document.getElementById('weight').value;
+  document.getElementById('toStep2').disabled = !(state.age && state.gender && state.height && state.weight);
+}
+document.getElementById('toStep2').addEventListener('click', ()=>{ buildFigures(state.gender); goTo(2); });
+
+// ---------- step 2 ----------
+document.getElementById('back2').addEventListener('click', ()=> goTo(1));
+document.getElementById('toStep3').addEventListener('click', ()=> goTo(3));
+
+// ---------- step 3 ----------
+document.querySelectorAll('.dbtn[data-d]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.dbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('customWrap').classList.remove('show');
+    state.durationDays = parseInt(b.getAttribute('data-d'),10);
+    state.durationLabel = b.textContent.trim().replace(/\s+/g,' ');
+    document.getElementById('toStep4').disabled = false;
+  });
+});
+document.getElementById('customBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('.dbtn[data-d]').forEach(x=>x.classList.remove('on'));
+  document.getElementById('customBtn').classList.add('on');
+  document.getElementById('customWrap').classList.add('show');
+  document.getElementById('toStep4').disabled = true;
+  document.getElementById('customDays').focus();
+});
+document.getElementById('customDays').addEventListener('input', (e)=>{
+  const v = parseInt(e.target.value,10);
+  if(v>0){ state.durationDays=v; state.durationLabel=v+' day'+(v===1?'':'s')+' (custom)'; document.getElementById('toStep4').disabled=false; }
+  else document.getElementById('toStep4').disabled = true;
+});
+document.getElementById('back3').addEventListener('click', ()=> goTo(2));
+document.getElementById('toStep4').addEventListener('click', ()=>{ renderLevels(); goTo(4); });
+
+// ---------- step 4: levels ----------
+function renderLevels(){
+  const wrap = document.getElementById('levelList');
+  wrap.innerHTML = '';
+  state.zones.forEach(zid=>{
+    const zlabel = zoneDefs.find(z=>z.id===zid).label;
+    if(!state.levels[zid]) state.levels[zid] = 'Beginner';
+    const row = document.createElement('div');
+    row.className = 'levelrow';
+    row.innerHTML = `<label>${zlabel}</label>
+      <select data-zid="${zid}">${LEVELS.map(l=>`<option ${l===state.levels[zid]?'selected':''}>${l}</option>`).join('')}</select>`;
+    row.querySelector('select').addEventListener('change', (e)=>{ state.levels[zid] = e.target.value; });
+    wrap.appendChild(row);
+  });
+}
+document.getElementById('back4').addEventListener('click', ()=> goTo(3));
+document.getElementById('toStep5').addEventListener('click', ()=>{
+  renderSummary(); buildTrack(state.durationDays); renderDrills(); renderTips(); renderFood();
+  goTo(5);
+  document.getElementById('tabbar').style.display = 'flex';
+});
+
+// ---------- step 5 content ----------
+function renderSummary(){
+  const zoneLines = state.zones.map(id => `${zoneDefs.find(z=>z.id===id).label} — ${state.levels[id]}`).join('<br>');
+  document.getElementById('summaryOut').innerHTML = `
+    <dt>Profile</dt><dd>${state.age} yrs · ${state.gender==='male'?'Male':'Female'} · ${state.height} cm · ${state.weight} kg</dd>
+    <dt>Focus & level</dt><dd style="font-size:15px;line-height:1.6;">${zoneLines}</dd>
+    <dt>Program length</dt><dd>${state.durationLabel} (${state.durationDays} days)</dd>
+  `;
+  document.getElementById('trackTitle').textContent = `Day-by-day path · ${state.durationDays} day${state.durationDays===1?'':'s'} to the finish line`;
+}
+
+function buildTrack(days){
+  const svg = document.getElementById('trackSvg');
+  const W = 240;
+  const spacing = Math.max(10, Math.min(36, 5200/days));
+  const H = Math.round(days*spacing) + 90;
+  const amp = 78, wavelen = 110, cx = 120;
+  let d = `M${cx} 14`;
+  for(let y=14; y<=H-50; y+=4){
+    const x = cx + amp*Math.sin((y/wavelen)*2*Math.PI);
+    d += ` L${x.toFixed(1)} ${y}`;
+  }
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = `<path id="trackPath" d="${d}" fill="none" stroke="#3d444a" stroke-width="7" stroke-linecap="round"/>`;
+  const path = document.getElementById('trackPath');
+  const total = path.getTotalLength();
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  const showLabel = (i)=> days<=14 || i===0 || i===days-1 || (i+1)%Math.max(5,Math.round(days/12))===0;
+  const curIdx = Math.max(0, Math.min(days-1, state.currentDay-1));
+  let curPoint = null;
+  for(let i=0;i<days;i++){
+    const len = days<=1 ? 0 : (i/(days-1))*total;
+    const p = path.getPointAtLength(len);
+    if(i===curIdx) curPoint = p;
+    const isFirst = i===0, isLast = i===days-1;
+    const r = isFirst || isLast ? 10 : 6;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y); circle.setAttribute('r', r);
+    circle.setAttribute('fill', isLast ? '#FFB020' : (isFirst ? '#4E9C97' : '#8b939790'));
+    if(isFirst || isLast){ circle.setAttribute('stroke', '#15181A'); circle.setAttribute('stroke-width','2'); }
+    g.appendChild(circle);
+    if(showLabel(i) && !isLast){
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', p.x + (p.x>cx? 14 : -14));
+      t.setAttribute('y', p.y+4);
+      t.setAttribute('font-size','12'); t.setAttribute('fill','#9AA3A6');
+      t.setAttribute('text-anchor', p.x>cx? 'start':'end');
+      t.textContent = isFirst ? 'Day 1' : ('Day '+(i+1));
+      g.appendChild(t);
+    }
+  }
+  const endP = path.getPointAtLength(total);
+  const flag = document.createElementNS('http://www.w3.org/2000/svg','g');
+  flag.innerHTML = `<line x1="${endP.x-26}" y1="${endP.y}" x2="${endP.x+26}" y2="${endP.y}" stroke="#EDEFEE" stroke-width="4" stroke-dasharray="6 6"/>
+    <text x="${endP.x}" y="${endP.y+28}" font-size="13" font-family="Oswald,sans-serif" fill="#FFB020" text-anchor="middle" letter-spacing="1">FINISH · DAY ${days}</text>`;
+  g.appendChild(flag);
+  if(curPoint){
+    const cur = document.createElementNS('http://www.w3.org/2000/svg','g');
+    cur.style.cursor = 'pointer';
+    cur.innerHTML = `<circle cx="${curPoint.x}" cy="${curPoint.y}" r="20" fill="none" stroke="#4E9C97" stroke-width="2.5" opacity="0.6"/>
+      <circle cx="${curPoint.x}" cy="${curPoint.y}" r="13" fill="#4E9C97" stroke="#15181A" stroke-width="2.5"/>
+      <text x="${curPoint.x}" y="${curPoint.y+4}" font-size="11" font-family="Oswald,sans-serif" fill="#0d1f1d" text-anchor="middle" font-weight="600">${state.currentDay}</text>`;
+    cur.addEventListener('click', ()=> openDayPanel(state.currentDay));
+    g.appendChild(cur);
+  }
+  svg.appendChild(g);
+}
+
+function openDayPanel(dayNum){
+  document.getElementById('dpDayNum').textContent = dayNum;
+  document.querySelectorAll('.modebtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('dpPreview').classList.remove('show');
+  document.getElementById('timestartDiag').classList.remove('show');
+  document.getElementById('dayPanel').classList.add('show');
+  document.getElementById('dayPanelBackdrop').classList.add('show');
+}
+function closeDayPanel(){
+  document.getElementById('dayPanel').classList.remove('show');
+  document.getElementById('dayPanelBackdrop').classList.remove('show');
+}
+document.getElementById('dpClose').addEventListener('click', closeDayPanel);
+document.getElementById('dayPanelBackdrop').addEventListener('click', closeDayPanel);
+document.querySelectorAll('.modebtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.modebtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    const mode = btn.getAttribute('data-mode');
+    const exList = modeMap[mode];
+    const previewHtml = state.zones.map(zid=>{
+      const label = zoneDefs.find(z=>z.id===zid).label;
+      return `<div><b style="color:var(--ink);">${label}:</b> ${exList[zid].join(', ')}</div>`;
+    }).join('');
+    document.getElementById('dpPreview').innerHTML = `<h4>Preview</h4>${previewHtml}`;
+    document.getElementById('dpPreview').classList.add('show');
+    const mb = modeBase[mode];
+    const minutes = mb.base + state.zones.length*mb.per;
+    document.getElementById('dpTime').innerHTML = `Expected time<b>~${minutes} min</b>`;
+    const startBtn = document.getElementById('dpStart');
+    startBtn.textContent = 'Start'; startBtn.disabled = false;
+    document.getElementById('timestartDiag').classList.add('show');
+  });
+});
+document.getElementById('dpStart').addEventListener('click', ()=>{
+  const onBtn = document.querySelector('.modebtn.on');
+  const label = 'Day ' + state.currentDay + ' · ' + (onBtn ? onBtn.textContent : 'Workout');
+  closeDayPanel();
+  openCamera(label);
+});
+
+let camStream = null, camInterval = null, camSeconds = 0;
+function openCamera(label){
+  document.getElementById('camWorkoutName').textContent = label;
+  camSeconds = 0;
+  document.getElementById('camTimer').textContent = '00:00';
+  const view = document.getElementById('cameraView');
+  const video = document.getElementById('camVideo');
+  const oldErr = document.getElementById('camErrorMsg'); if(oldErr) oldErr.remove();
+  video.style.display = 'block';
+  view.classList.add('show');
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false})
+      .then(stream=>{ camStream = stream; video.srcObject = stream; })
+      .catch(()=> showCamError());
+  } else {
+    showCamError();
+  }
+  clearInterval(camInterval);
+  camInterval = setInterval(()=>{
+    camSeconds++;
+    const m = String(Math.floor(camSeconds/60)).padStart(2,'0');
+    const s = String(camSeconds%60).padStart(2,'0');
+    document.getElementById('camTimer').textContent = m+':'+s;
+  }, 1000);
+}
+function showCamError(){
+  document.getElementById('camVideo').style.display = 'none';
+  const msg = document.createElement('div');
+  msg.className = 'cam-error'; msg.id = 'camErrorMsg';
+  msg.textContent = "Camera access isn't available here — you can still do the workout. Hit Finish when you're done.";
+  document.getElementById('cameraView').insertBefore(msg, document.getElementById('cam-bottom')||document.querySelector('.cam-bottom'));
+}
+function closeCamera(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
+  clearInterval(camInterval);
+  document.getElementById('cameraView').classList.remove('show');
+  const err = document.getElementById('camErrorMsg'); if(err) err.remove();
+}
+document.getElementById('camClose').addEventListener('click', closeCamera);
+document.getElementById('camFinish').addEventListener('click', closeCamera);
+
+function renderDrills(){
+  const out = document.getElementById('drillsOut');
+  out.innerHTML = state.zones.map(zid=>{
+    const label = zoneDefs.find(z=>z.id===zid).label;
+    return `<div class="drillzone"><h3>${label} — ${state.levels[zid]}</h3>
+      <ul>${drillMap[zid].map(d=>`<li>${d}</li>`).join('')}</ul></div>`;
+  }).join('');
+}
+
+function renderTips(){
+  const idxs = state.zones.map(z=>LEVELS.indexOf(state.levels[z]));
+  const lo = LEVELS[Math.min(...idxs)], hi = LEVELS[Math.max(...idxs)];
+  const tips = [
+    'Prioritize consistency over intensity — showing up beats a perfect session you skip.',
+    'Add a little more weight or a rep or two most weeks (progressive overload).',
+    'Sleep and protein drive recovery as much as the workout itself.',
+    'Take at least one full rest day between sessions hitting the same area.',
+    lo===hi ? `Keep pushing every picked area at your ${lo} level with equal focus.`
+             : `Your levels range from ${lo} to ${hi} — spend a bit more effort on the lower-rated areas first.`,
+  ];
+  document.getElementById('tipsOut').innerHTML = tips.map(t=>`<li>${t}</li>`).join('');
+}
+
+function renderSideQuest(){
+  const out = document.getElementById('sqOut');
+  if(!state.sideQuestSeen){
+    out.innerHTML = `
+      <h3 style="font-family:'Oswald',sans-serif;font-size:17px;margin:0 0 10px;">What's a Side Quest?</h3>
+      <p style="font-size:14px;color:var(--ink-dim);line-height:1.7;margin:0;">
+        Side quest is a bonus option that you get every day to complete throughout the day, and gives you bonus points
+        from 1–5 depending on the difficulty. It's completely disconnected from the training, except that on rest days
+        the limit to the side quest's difficulty is 2.
+      </p>
+      <button class="primary" id="sqContinue">Show today's quest</button>
+    `;
+    document.getElementById('sqContinue').addEventListener('click', ()=>{
+      state.sideQuestSeen = true;
+      renderSideQuest();
+    });
+    return;
+  }
+  const isRestDay = state.currentDay % 7 === 0;
+  const maxDiff = isRestDay ? 2 : 5;
+  if(!state.sideQuestToday || state.sideQuestToday.forDay !== state.currentDay){
+    const pool = questPool.filter(q=>q.d<=maxDiff);
+    const pick = pool[Math.floor(Math.random()*pool.length)];
+    state.sideQuestToday = {...pick, forDay: state.currentDay, done:false};
+  }
+  const q = state.sideQuestToday;
+  const dots = '●'.repeat(q.d) + '○'.repeat(5-q.d);
+  out.innerHTML = `
+    <div class="foodrow" style="border-bottom:none;">
+      <span>Day ${state.currentDay}${isRestDay ? ' · rest day (capped at difficulty 2)' : ''}</span>
+      <span></span>
+    </div>
+    <h3 style="font-family:'Oswald',sans-serif;font-size:16px;margin:6px 0 10px;">${q.t}</h3>
+    <div class="foodrow"><span>Difficulty</span><span style="color:var(--amber);letter-spacing:2px;">${dots}</span></div>
+    <div class="foodrow"><span>Bonus points</span><span>+${q.d} pt${q.d===1?'':'s'}</span></div>
+    <button class="primary" id="sqComplete" ${q.done?'disabled':''}>${q.done?'Completed ✓':'Mark complete'}</button>
+  `;
+  document.getElementById('sqComplete').addEventListener('click', ()=>{
+    state.sideQuestToday.done = true;
+    renderSideQuest();
+  });
+}
+
+function renderFood(){
+  const w = parseFloat(state.weight), h = parseFloat(state.height), a = parseFloat(state.age);
+  const bmr = state.gender==='male' ? 10*w+6.25*h-5*a+5 : 10*w+6.25*h-5*a-161;
+  const tdee = Math.round(bmr*1.4);
+  const proteinLo = Math.round(w*1.6), proteinHi = Math.round(w*2.2);
+  document.getElementById('foodOut').innerHTML = `
+    <div class="foodrow"><span>Estimated maintenance calories</span><span>${tdee} kcal</span></div>
+    <div class="foodrow"><span>Daily protein target</span><span>${proteinLo}–${proteinHi} g</span></div>
+    <div class="foodrow"><span>Water, baseline</span><span>${Math.round(w*0.035*10)/10} L</span></div>
+    <p class="disclaimer">Rough estimates from your age, height and weight (Mifflin-St Jeor, light-moderate activity) — not medical advice. Adjust based on how your weight trends over a few weeks.</p>
+  `;
+}
+
+// tab bar
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab'+btn.getAttribute('data-tab')).classList.add('active');
+    if(btn.getAttribute('data-tab')==='SideQuest') renderSideQuest();
+  });
+});
+
+// ---------- nav ----------
+function goTo(step){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+  document.getElementById('laneWrap').style.display = step===5 ? 'none' : 'flex';
+  for(let i=1;i<=5;i++){
+    const lane = document.getElementById('lane'+i);
+    lane.classList.remove('active','done');
+    if(i<step) lane.classList.add('done');
+    if(i===step) lane.classList.add('active');
+  }
+}
+</script>
+</body>
+</html>
